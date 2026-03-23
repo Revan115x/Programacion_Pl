@@ -1,0 +1,25 @@
+/*Procedimiento que recibe el nombre de un departamento y muestra el salario
+máximo, mínimo y medio de dicho departamento.*/
+
+CREATE OR REPLACE PROCEDURE MEDIA_DEPART (PNOM VARCHAR2)
+AS
+VMIN NUMBER;
+VMAX NUMBER;
+VMID NUMBER;
+VCUANTOS NUMBER;
+BEGIN
+ 
+    SELECT COUNT(*), MIN(SALARIO),MAX(SALARIO),AVG(SALARIO) INTO VCUANTOS, VMIN, VMAX ,VMID
+    FROM DEPART D JOIN EMPLE E
+    ON E.DEPT_NO = D.DEPT_NO
+    WHERE D.DNOMBRE = PNOM;
+    
+    IF VCUANTOS = 0 THEN 
+       VER ('NO EXISTE EL DEPARTAMENTO O NO TIENE EMPLEADOS');
+    ELSE   
+       VER ('MAXIMO: '||VMAX);
+    END IF;
+   
+END;
+
+EXECUTE MEDIA_DEPART('CONTA');
