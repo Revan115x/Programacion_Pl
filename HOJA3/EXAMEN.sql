@@ -135,6 +135,17 @@ Después, muestra los animales de este dueño: saca el nombre, la especie y los 
 animal.
 Al acabar indica cuantos gatos y cuantos perros tiene el dueño*/
 
+SELECT NOMBRE, TFNO_CONTACTO,TO_CHAR(ALTA_CLIINICA 'YYYY') FROM DUEÑOS;
+
+CREATE OR REPLACE PROCEDURE  EX_MUESTRA_ANIMALES()
+AS
+begin
+    CURSOR DUEÑO IS
+    SELECT NOMBRE, TFNO_CONTACTO,TO_CHAR('ALTA_CLIINICA' 'YYYY')
+    FROM DUEÑOS
+    
+end;
+
 5. Procedimiento EX_BUCLE_ORDINARIA (2 ptos)
 Recibe dos números, comprueba que sean distintos, si no lo son mensaje de error y no se hace nada más.
 Si son distintos voy multiplicando el menor por sí mismo hasta sobrepasar el número mayor.
