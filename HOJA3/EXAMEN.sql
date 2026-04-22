@@ -134,18 +134,58 @@ Muestra su nombre, su teléfono y año en el que se dio de alta en la clínica.
 Después, muestra los animales de este dueño: saca el nombre, la especie y los años que tiene el
 animal.
 Al acabar indica cuantos gatos y cuantos perros tiene el dueño*/
+SELECT *
+FROM DUEÑOS;
 
-SELECT NOMBRE, TFNO_CONTACTO,TO_CHAR(ALTA_CLIINICA 'YYYY') FROM DUEÑOS;
-
-CREATE OR REPLACE PROCEDURE  EX_MUESTRA_ANIMALES()
+CREATE OR REPLACE PROCEDURE EX_MUESTRA_ANIMALES
 AS
-begin
-    CURSOR DUEÑO IS
-    SELECT NOMBRE, TFNO_CONTACTO,TO_CHAR('ALTA_CLIINICA' 'YYYY')
-    FROM DUEÑOS
-    
-end;
+    CURSOR INFO IS
+        SELECT ID_DUEÑO, NOMBRE, TFNO_CONTACTO, SUBSTR(ALTA_CLINICA, 1, 4) AS AÑO
+        FROM DUEÑOS;
 
+    v_gatos NUMBER;
+    v_perros NUMBER;
+
+BEGIN
+    FOR I IN INFO LOOP
+        
+        DBMS_OUTPUT.PUT_LINE('Dueño: ' || I.NOMBRE || 
+                             ' | Tel: ' || I.TFNO_CONTACTO || 
+                             ' | Año alta: ' || I.AÑO);
+
+        -- Mostrar animales
+        FOR A IN (
+            SELECT NOMBRE, ESPECIE,
+                   TRUNC(MONTHS_BETWEEN(SYSDATE, FECHA_NAC)/12) AS EDAD
+            FROM ANIMALES
+            WHERE ID_DUEÑO = I.ID_DUEÑO
+        ) LOOP
+            DBMS_OUTPUT.PUT_LINE('  Animal: ' || A.NOMBRE || 
+                                 ' | Especie: ' || A.ESPECIE || 
+                                 ' | Edad: ' || A.EDAD);
+        END LOOP;
+
+        -- Contar gatos
+        SELECT COUNT(*)
+        INTO v_gatos
+        FROM ANIMALES
+        WHERE ID_DUEÑO = I.ID_DUEÑO
+        AND LOWER(ESPECIE) = 'gato';
+
+        -- Contar perros
+        SELECT COUNT(*)
+        INTO v_perros
+        FROM ANIMALES
+        WHERE ID_DUEÑO = I.ID_DUEÑO
+        AND LOWER(ESPECIE) = 'perro';
+
+        DBMS_OUTPUT.PUT_LINE('  Gatos: ' || v_gatos || 
+                             ' | Perros: ' || v_perros);
+
+        DBMS_OUTPUT.PUT_LINE('-------------------------');
+
+    END LOOP;
+END;
 5. Procedimiento EX_BUCLE_ORDINARIA (2 ptos)
 Recibe dos números, comprueba que sean distintos, si no lo son mensaje de error y no se hace nada más.
 Si son distintos voy multiplicando el menor por sí mismo hasta sobrepasar el número mayor.
