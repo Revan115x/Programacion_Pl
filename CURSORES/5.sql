@@ -1,40 +1,40 @@
+/* Recibir una  función de mecánico y mostrar:
+Nombre y teléfono de cada uno de sus mecánicos   (1er cursor)
+Por cada mecánico mostrar los tres últimos arreglos que ha hecho 
+(matrícula del coche, nombre del dueño, importe, fecha de entrada y días que ha estado o que lleva en el taller.  (2do cursor)
+*/
+
 CREATE OR REPLACE FUNCTION MECANICO_INF RETURN VARCHAR2
 AS
-    EMPL NUMBER;
-    INFO VARCHAR2(4000) := '';
+    INF VARCHAR2(5000):= '';
     
-    CURSOR MEC IS 
-        SELECT * FROM MECANICOS;
+    CURSOR DATOS IS
+    SELECT * FROM MECANICOS;
     
-    CURSOR ARRG (P_EMPL NUMBER) IS
-        SELECT A.MATRICULA,
-               A.IMPORTE,
-               A.FECHA_ENTRADA,
-               TRUNC(SYSDATE - A.FECHA_ENTRADA) AS DIAS,
-               C.NOMBRE
-        FROM ARREGLOS A 
-        JOIN COCHES_TALLER CT ON A.MATRICULA = CT.MATRICULA
-        JOIN CLIENTES_TALLER C ON CT.NCLIENTE = C.NCLIENTE
-        WHERE A.NEMPLEADO = P_EMPL
-        ORDER BY A.FECHA_ENTRADA DESC
-        FETCH FIRST 3 ROWS ONLY;
+    CURSOR ARRG(P_ID NUMBER) IS
+    SELECT ct.nombre,A.MATRICULA,A.FECHA_ENTRADA,A.FECHA_SALIDA,TRUNC(SYSDATE - FECHA_ENTRADA )DIAS,A.IMPORTE
+    FROM ARREGLOS A JOIN coches_taller C
+    ON a.matricula=c.matricula JOIN clientes_taller CT
+    ON c.ncliente=ct.ncliente
+    WHERE a.nempleado=P_ID;
 
 BEGIN
 
-    FOR M IN MEC LOOP
-        INFO := INFO || VER(M.NOMBRE || ' ' || M.TELEFONO);
-        EMPL := M.NEMPLEADO;
+    FOR I IN DATOS LOOP
         
-        FOR A IN ARRG(EMPL) LOOP
-            INFO := INFO || VER(A.MATRICULA || ' ' || 
-                                 A.NOMBRE || ' ' ||
-                                 A.IMPORTE || ' ' || 
-                                 A.FECHA_ENTRADA || ' ' || 
-                                 A.DIAS);
+        INF := INF ||' MECANICOS '|| I.NOMBRE||' '||I.TELEFONO ||CHR(10);
+        
+        FOR J IN ARRG(I.NEMPLEADO) LOOP
+        
+        INF := INF ||' ARREGLOS: '|| J.NOMBRE||' '||J.MATRICULA||' '||J.FECHA_ENTRADA||' '||J.FECHA_SALIDA||' '||J.DIAS||' '||J.IMPORTE||CHR(10);
+        
         END LOOP;
         
     END LOOP;
     
-    RETURN INFO;
-
+    RETURN INF;
 END;
+
+SET SERVEROUTPUT ON;
+
+EXECUTE VER(MECANICO_INF());
